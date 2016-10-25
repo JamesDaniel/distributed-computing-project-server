@@ -13,9 +13,8 @@ import java.io.*;
 
 public class EchoServer1 {
     public static void main(String[] args) {
-        int serverPort = 7;    // default port
-        if (args.length == 1 )
-            serverPort = Integer.parseInt(args[0]);
+        int serverPort = 3001;
+
         try {
             // instantiates a datagram socket for both sending
             // and receiving data
