@@ -38,7 +38,7 @@ public class FileServer {
                         break;
                     case 200:
                         System.out.println("File Upload request made.");
-                        //fileTransfer.processFileUploadRequest(request, mySocket);
+                        fileTransfer.processFileUploadRequest(receivedPacket, mySocket);
                         break;
                     case 300:
                         System.out.println("File Download request made.");

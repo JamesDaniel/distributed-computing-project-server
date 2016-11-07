@@ -77,8 +77,8 @@ public class LoginVerifier {
             ex.printStackTrace();
         }
     }
-    public String getUsernameFromHost(DatagramMessage request) {
-        InetAddress host = request.getAddress();
+    public String getUsernameFromHost(DataPacket packet) {
+        InetAddress host = packet.host;
         for (LoggedInUser loggedInUser : currentlyLoggedInLoggedInUsers) {
             if (loggedInUser.getHost().equals(host)) {
                 return loggedInUser.getName();
