@@ -3,6 +3,7 @@
  */
 import java.net.*;
 import java.io.*;
+import java.util.Date;
 
 /**
  * A subclass of DatagramSocket which contains
@@ -26,15 +27,14 @@ public class MyServerDatagramSocket extends DatagramSocket {
         this.send(datagram);
     } // end sendMessage
 
-    public String receiveMessage( )
-            throws IOException {
+    public DataPacket receivePacketAndSender( ) throws IOException {
         byte[ ] receiveBuffer = new byte[MAX_LEN];
-        DatagramPacket datagram =
-                new DatagramPacket(receiveBuffer, MAX_LEN);
+        DatagramPacket datagram = new DatagramPacket(receiveBuffer, MAX_LEN);
         this.receive(datagram);
-        String message = new String(receiveBuffer);
-        return message;
-    } //end receiveMessage
+        return new DataPacket(datagram.getAddress(),
+                              datagram.getPort(),
+                              datagram.getData());
+    }
 
     public DatagramMessage receiveMessageAndSender( )
             throws IOException {

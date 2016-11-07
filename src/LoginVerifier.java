@@ -1,3 +1,4 @@
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
@@ -6,24 +7,23 @@ import java.util.ArrayList;
  */
 public class LoginVerifier {
     public ArrayList<ValidUser> authorisedUsers = new ArrayList<>();
-    public ArrayList<User> currentlyLoggedInUsers = new ArrayList<>();
+    public ArrayList<LoggedInUser> currentlyLoggedInLoggedInUsers = new ArrayList<>();
     public LoginVerifier() {
         authorisedUsers.add(new ValidUser("john","pass"));
     }
-    public boolean verifyLogin(DatagramMessage request) {
-        String message = request.getMessage();
-        String username = message.substring(13,message.indexOf(":password:")).trim();
-        String password = message.substring(message.indexOf(":password:")+10,message.length()).trim();
+    public boolean verifyLogin(DataPacket packet, MyServerDatagramSocket socket) {
+        byte[] data = packet.data;
+        String username = ReadUserLoginOutPacket.getUsername(data);
+        String password = ReadUserLoginOutPacket.getUserPass(data);
 
         if (findValidUser(username, password)) {
 
             System.out.println("Login request received");
 
-            InetAddress host = request.getAddress();
-            int port = request.getPort();
-            int hashCode =  (username + password).hashCode();
-            currentlyLoggedInUsers.add(new User(username, password, host, port, hashCode));
-            System.out.println("logged on users: " + currentlyLoggedInUsers.size());
+            InetAddress host = packet.host;
+            int port = packet.port;
+            currentlyLoggedInLoggedInUsers.add(new LoggedInUser(username, password, host, port));
+            System.out.println("logged on users: " + currentlyLoggedInLoggedInUsers.size());
             return true;
         }
         return false;
@@ -37,14 +37,14 @@ public class LoginVerifier {
         }
         return false;
     }
-    public void handleLoginRequest(DatagramMessage loginRequest, MyServerDatagramSocket socket) {
+    public void handleLoginRequest(DataPacket dataReceived, MyServerDatagramSocket socket) {
         try {
-            if (this.verifyLogin(loginRequest)) {
+            if (this.verifyLogin(dataReceived, socket)) {
                 System.out.println("Successful login made.");
-                socket.sendMessage(loginRequest.getAddress(), loginRequest.getPort(), "200:123");
+                socket.sendMessage(dataReceived.host, dataReceived.port, "200:123");
             } else {
                 System.out.println("Failed login made.");
-                socket.sendMessage(loginRequest.getAddress(), loginRequest.getPort(), "201:failure");
+                socket.sendMessage(dataReceived.host, dataReceived.port, "201:failure");
             }
         }
         catch (Exception ex)
@@ -52,35 +52,36 @@ public class LoginVerifier {
             ex.printStackTrace();
         }
     }
-    public void handleLogoutRequest(DatagramMessage logoutRequest, MyServerDatagramSocket socket) {
-        String message = logoutRequest.getMessage();
+    public void handleLogoutRequest(DataPacket packet, MyServerDatagramSocket socket) {
+        byte[] data = packet.data;
+        String username = ReadUserLoginOutPacket.getUsername(data);
+        String password = ReadUserLoginOutPacket.getUserPass(data);
+
         try {
-            String username = message.substring(13,message.indexOf(":password:")).trim();
             int locationInList = -1;
-            for (int i = 0; i<currentlyLoggedInUsers.size(); i++) {
-                if (currentlyLoggedInUsers.get(i).getName().equals(username)) {
+            for (int i = 0; i< currentlyLoggedInLoggedInUsers.size(); i++) {
+                if (currentlyLoggedInLoggedInUsers.get(i).getName().equals(username)) {
                     locationInList = i;
                     break;
                 }
             }
             if (locationInList > -1) {
-                currentlyLoggedInUsers.remove(locationInList);
+                currentlyLoggedInLoggedInUsers.remove(locationInList);
                 System.out.println("logout successful.");
             } else {
                 System.out.println("logout not successful. user is not logged in yet.");
             }
-            socket.sendMessage(logoutRequest.getAddress(), logoutRequest.getPort(), "200:1234");
+            socket.sendMessage(packet.host, packet.port, "500");
         }
         catch (Exception ex) {
-
+            ex.printStackTrace();
         }
     }
     public String getUsernameFromHost(DatagramMessage request) {
         InetAddress host = request.getAddress();
-        int port = request.getPort();
-        for (User user: currentlyLoggedInUsers) {
-            if (user.getHost().equals(host) && user.getPort() == port) {
-                return user.getName();
+        for (LoggedInUser loggedInUser : currentlyLoggedInLoggedInUsers) {
+            if (loggedInUser.getHost().equals(host)) {
+                return loggedInUser.getName();
             }
         }
         return "UnknownUser";
