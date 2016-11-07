@@ -49,5 +49,11 @@ public class MyServerDatagramSocket extends DatagramSocket {
                 datagram.getAddress( ),
                 datagram.getPort( ));
         return returnVal;
-    } //end receiveMessage
+    }
+    public void sendFile(InetAddress receiverHost,
+                         int receiverPort,
+                         byte[] file) throws IOException {
+        DatagramPacket datagram = new DatagramPacket(file, file.length, receiverHost, receiverPort);
+        this.send(datagram);
+    }
 } //end class

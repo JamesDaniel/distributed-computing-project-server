@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +29,38 @@ public class FileTransferManager {
             createFileFromNameAndBytes(user,fileName,fileData);
             socket.sendMessage(packet.host, packet.port, "upload request received by server.");
             System.out.println("upload request processed.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public void processFileDownloadRequest(DataPacket packet, MyServerDatagramSocket socket, LoginVerifier verifyLogin) {
+        String downloadingUser = this.loginVerifier.getUsernameFromHost(packet);
+
+        try {
+            if (downloadingUser.trim().equals("UnknownUser")) {
+                System.out.println("Download attempted by user who is not logged in. Exiting.");
+                socket.sendMessage(packet.host, packet.port, "download request received by server.");
+                return;
+            }
+            String user = this.loginVerifier.getUsernameFromHost(packet);
+            System.out.println("User: " + user + " made download request.");
+
+            sendFileToUser(packet,socket,verifyLogin);
+            //socket.sendMessage(packet.host, packet.port, "upload request received by server.");
+            System.out.println("upload request processed.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    public void sendFileToUser(DataPacket packet, MyServerDatagramSocket socket, LoginVerifier verifyLogin) {
+        String fileName = ReadFilePacket.getFileName(packet.data);
+        String requester = verifyLogin.getUsernameFromHost(packet);
+
+        try {
+            byte[] data = FileSystemUtils.getBytesFromPath(requester + "/" + fileName.trim());
+            int length = data.length;
+            byte[] bytesForPacket = PackageFilePacket.packagedPacket("500",length,fileName,data);
+            socket.sendFile(packet.host, packet.port, bytesForPacket);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

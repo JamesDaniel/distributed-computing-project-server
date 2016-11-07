@@ -24,7 +24,6 @@ public class FileServer {
             FileTransferManager fileTransfer = new FileTransferManager(login);
             while (true)
             {
-                //DatagramMessage request = mySocket.receiveMessageAndSender();
                 DataPacket receivedPacket = mySocket.receivePacketAndSender();
 
                 String protocol = ReadFilePacket.getProtocol(receivedPacket.data);
@@ -42,6 +41,7 @@ public class FileServer {
                         break;
                     case 300:
                         System.out.println("File Download request made.");
+                        fileTransfer.processFileDownloadRequest(receivedPacket, mySocket, login);
                         break;
                     case 400:
                         System.out.println("Log-off request made.");
