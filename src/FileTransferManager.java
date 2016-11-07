@@ -67,7 +67,7 @@ public class FileTransferManager {
     }
     public void createFileFromNameAndBytes(String user, String name, byte[] bytes) throws IOException {
         new File(user).mkdir();
-        Path path = Paths.get(user + "/" + name);
+        Path path = Paths.get(user.trim() + "/" + name.trim());
         Files.write(path,bytes);
     }
 }
