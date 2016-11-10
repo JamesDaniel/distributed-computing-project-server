@@ -41,10 +41,10 @@ public class LoginVerifier {
         try {
             if (this.verifyLogin(dataReceived, socket)) {
                 System.out.println("Successful login made.");
-                socket.sendMessage(dataReceived.host, dataReceived.port, "200:123");
+                socket.sendMessage(dataReceived.host, dataReceived.port, "500");
             } else {
                 System.out.println("Failed login made.");
-                socket.sendMessage(dataReceived.host, dataReceived.port, "201:failure");
+                socket.sendMessage(dataReceived.host, dataReceived.port, "600");
             }
         }
         catch (Exception ex)

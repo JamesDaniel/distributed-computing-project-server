@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +19,7 @@ public class FileTransferManager {
         try {
             if ( uploadingUser.trim().equals("UnknownUser")) {
                 System.out.println("Upload attempted by user who is not logged in. Exiting.");
-                socket.sendMessage(packet.host, packet.port, "upload request received by server.");
+                socket.sendMessage(packet.host, packet.port, "600");
                 return;
             }
             String user = this.loginVerifier.getUsernameFromHost(packet);
@@ -27,7 +28,7 @@ public class FileTransferManager {
             String fileName = ReadFilePacket.getFileName(packet.data);
             byte[] fileData = ReadFilePacket.getFileContent(packet.data);
             createFileFromNameAndBytes(user,fileName,fileData);
-            socket.sendMessage(packet.host, packet.port, "upload request received by server.");
+            socket.sendMessage(packet.host, packet.port, "500");
             System.out.println("upload request processed.");
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -39,7 +40,7 @@ public class FileTransferManager {
         try {
             if (downloadingUser.trim().equals("UnknownUser")) {
                 System.out.println("Download attempted by user who is not logged in. Exiting.");
-                socket.sendMessage(packet.host, packet.port, "download request received by server.");
+                socket.sendMessage(packet.host, packet.port, "600");
                 return;
             }
             String user = this.loginVerifier.getUsernameFromHost(packet);
@@ -47,7 +48,7 @@ public class FileTransferManager {
 
             sendFileToUser(packet,socket,verifyLogin);
             //socket.sendMessage(packet.host, packet.port, "upload request received by server.");
-            System.out.println("upload request processed.");
+            System.out.println("upload from server to client processed.");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -59,7 +60,8 @@ public class FileTransferManager {
         try {
             byte[] data = FileSystemUtils.getBytesFromPath(requester + "/" + fileName.trim());
             int length = data.length;
-            byte[] bytesForPacket = PackageFilePacket.packagedPacket("500",length,fileName,data);
+            byte[] bytesForPacket = PackageFilePacket.packagedPacket("200",length,fileName,data);
+            JOptionPane.showMessageDialog(null, "yo " + packet.host + " " + packet.port);
             socket.sendFile(packet.host, packet.port, bytesForPacket);
         } catch (Exception ex) {
             ex.printStackTrace();
