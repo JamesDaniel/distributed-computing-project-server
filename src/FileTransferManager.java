@@ -61,7 +61,6 @@ public class FileTransferManager {
             byte[] data = FileSystemUtils.getBytesFromPath(requester + "/" + fileName.trim());
             int length = data.length;
             byte[] bytesForPacket = PackageFilePacket.packagedPacket("200",length,fileName,data);
-            JOptionPane.showMessageDialog(null, "yo " + packet.host + " " + packet.port);
             socket.sendFile(packet.host, packet.port, bytesForPacket);
         } catch (Exception ex) {
             ex.printStackTrace();
