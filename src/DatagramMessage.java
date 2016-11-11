@@ -6,6 +6,10 @@ import java.net.*;
  * A class to use with MyServerDatagramSocket for
  * returning a message and the sender's address
  * @author M. L. Liu
+ *
+ * Reference:
+ * Even though this code is included in my project, this code is not written by myself JamesMcGarr.
+ * The author of this code is M. L. Liu
  */
 public class DatagramMessage{
     private String message;
